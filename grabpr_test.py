@@ -4,12 +4,11 @@ import time
 import csv
 
 
-with open('detail2.html', encoding="utf-8") as file:
+with open('test.html', encoding="utf-8") as file:
         file_data = file.read()
-p = re.compile('<input.*?id=\"edit_form_server_name\".*?value=\"([\w\s.]*)\"', re.DOTALL)
-m = p.search(file_data)
-print ("mmmm: ", m)
-CDN = (m.groups()[0]).strip()
-print ("CDN: ", CDN)
-
+p = re.compile('<a href="(/projects/[\w-]*\?ref=https.*)">(?!orig.video.ria.ru)')
+link_list = p.findall(file_data)
+print ("Number of projects: ", len(link_list))
+for link in link_list:
+        print (link)
 

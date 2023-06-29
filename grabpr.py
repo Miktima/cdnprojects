@@ -28,24 +28,25 @@ data = {
     'password': password,
     '_csrf_token': csrf_token
 }
-response = session.post(initialURL, data=data)
+response = session.post(loginURL, data=data)
 print ("Status code: ", response.status_code)
 time.sleep(5)
 response = session.get(projectsURL)
 time.sleep(3)
-print ("------------------------------------")
-print (response.text)
-print ("------------------------------------")
-p = re.compile('<a href="(/projects/[\w-]*\?ref=https.*)">')
+# print ("------------------------------------")
+# print (response.text)
+# print ("------------------------------------")
+p = re.compile('<a href="(/projects/[\w-]*\?ref=https.*)">(?!orig.video.ria.ru)')
 link_list = p.findall(response.text)
 print ("Number of projects: ", len(link_list))
 project_data = [['Project name', 'Project service name', 'Project ID', 'Origin', 'CDN']]
-iter = 0
+# iter = 0
+print ("------------------------------------")
 for link in link_list:
     response = session.get(initialURL + link)
     time.sleep(3)
     detail1 = response.text
-    p = re.compile('<label.*?>Имя проекта</label>.*?<input.*?value=\"([\w.]*)\"', re.DOTALL)
+    p = re.compile('<label.*?>Имя проекта</label>.*?<input.*?value=\"([\w\s.-]*)\"', re.DOTALL)
     m = p.search(detail1)
     project_name = (m.groups()[0]).strip()
     print ("Имя проекта: ", project_name)
@@ -53,7 +54,7 @@ for link in link_list:
     m = p.search(detail1)
     project_ser_name = (m.groups()[0]).strip()
     print ("Служебное имя проекта: ", project_ser_name)
-    p = re.compile('<input.*?id=\"edit_form_project_origins0edit_name\".*?value=\"([\w.]*)\"', re.DOTALL)
+    p = re.compile('<input.*?id=\"edit_form_project_origins0edit_name\".*?value=\"([\w.-]*)\"', re.DOTALL)
     m = p.search(detail1)
     origin = (m.groups()[0]).strip()
     print ("Origin: ", origin)
@@ -65,14 +66,15 @@ for link in link_list:
     response = session.get(initialURL + detail2_link)
     time.sleep(3)
     detail2 = response.text
-    p = re.compile('<input.*?id=\"edit_form_server_name\".*?value=\"([\w\s.]*)\"', re.DOTALL)
+    p = re.compile('<input.*?id=\"edit_form_server_name\".*?value=\"([\w\s.-]*)\"', re.DOTALL)
     m = p.search(detail2)
     cdn = (m.groups()[0]).strip()
     print ("CDN: ", cdn)
     project_data.append([project_name, project_ser_name, project_id, origin, cdn])
-    iter += 1
-    if iter > 3:
-         break
+    print ("------------------------------------")
+    # iter += 1
+    # if iter > 4:
+    #      break
 
 with open("projects.csv", "w", newline='') as csv_file:
         csvwriter = csv.writer(csv_file, delimiter=";")
